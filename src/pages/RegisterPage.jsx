@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { authService } from '../services/authService';
 import '../styles/auth.css';
 
 function RegisterPage() {
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,21 +23,14 @@ function RegisterPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:3000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Registration failed');
-      }
-
+      await authService.register(
+        formData.name,
+        formData.email,
+        formData.password
+      );
       navigate('/login');
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -87,7 +80,7 @@ function RegisterPage() {
             />
           </div>
 
-          <button type="submit" className="btn-primary" disabled={loading}>
+          <button type="submit" className="auth-btn-primary" disabled={loading}>
             {loading ? 'Creating account...' : 'SIGN UP'}
           </button>
         </form>
