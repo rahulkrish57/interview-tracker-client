@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -8,20 +8,20 @@ import {
   useSensors,
   useDroppable,
   useDraggable,
-} from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
-import Layout from '../components/Layout';
-import InterviewForm from '../components/InterviewForm';
-import { interviewService } from '../services/interviewService';
-import '../styles/kanban.css';
+} from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
+import Layout from "../components/Layout";
+import InterviewForm from "../components/InterviewForm";
+import { interviewService } from "../services/interviewService";
+import "../styles/kanban.css";
 
 const COLUMNS = [
-  { key: 'phone',         label: 'Phone',         color: '#1565c0' },
-  { key: 'screening',     label: 'Screening',     color: '#7c3aed' },
-  { key: 'interview',     label: 'Interview',     color: '#059669' },
-  { key: 'ghosted',       label: 'Ghosted',       color: '#6b7280' },
-  { key: 'rejected',      label: 'Rejected',      color: '#dc2626' },
-  { key: 'uninteresting', label: 'Uninteresting', color: '#d97706' },
+  { key: "phone", label: "Phone", color: "#1565c0" },
+  { key: "screening", label: "Screening", color: "#7c3aed" },
+  { key: "interview", label: "Interview", color: "#059669" },
+  { key: "ghosted", label: "Ghosted", color: "#6b7280" },
+  { key: "rejected", label: "Rejected", color: "#dc2626" },
+  { key: "uninteresting", label: "Uninteresting", color: "#d97706" },
 ];
 
 // ── Draggable Card ──
@@ -32,7 +32,7 @@ function DraggableCard({ interview, onEdit, onDelete, onStatusChange }) {
   const style = {
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.4 : 1,
-    transition: isDragging ? 'none' : 'transform 0.2s',
+    transition: isDragging ? "none" : "transform 0.2s",
   };
 
   return (
@@ -49,7 +49,13 @@ function DraggableCard({ interview, onEdit, onDelete, onStatusChange }) {
 }
 
 // ── Card UI (shared between draggable + overlay) ──
-function CardContent({ interview, onEdit, onDelete, onStatusChange, dragHandleProps = {} }) {
+function CardContent({
+  interview,
+  onEdit,
+  onDelete,
+  onStatusChange,
+  dragHandleProps = {},
+}) {
   const [showDropdown, setShowDropdown] = useState(false);
   const ref = useRef(null);
 
@@ -59,51 +65,58 @@ function CardContent({ interview, onEdit, onDelete, onStatusChange, dragHandlePr
         setShowDropdown(false);
       }
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   return (
     <div className="kanban-card">
       <div className="kanban-card-top">
         {/* Drag handle */}
-        <span
-          className="drag-handle"
-          {...dragHandleProps}
-          title="Drag to move"
-        >
+        <span className="drag-handle" {...dragHandleProps} title="Drag to move">
           ⠿
         </span>
         <span className="kanban-company">{interview.company}</span>
         <div className="kanban-card-actions">
-          <button className="btn-icon" onClick={() => onEdit(interview)} title="Edit">
+          <button
+            className="btn-icon"
+            onClick={() => onEdit(interview)}
+            title="Edit"
+          >
             ✏️
           </button>
           <div className="status-dropdown-wrap" ref={ref}>
             <button
               className="btn-icon"
               title="Move to..."
-              onClick={() => setShowDropdown(p => !p)}
+              onClick={() => setShowDropdown((p) => !p)}
             >
               ↕️
             </button>
             {showDropdown && (
               <div className="status-dropdown">
-                {COLUMNS.filter(c => c.key !== interview.status).map(col => (
-                  <button
-                    key={col.key}
-                    onClick={() => {
-                      onStatusChange(interview.id, col.key);
-                      setShowDropdown(false);
-                    }}
-                  >
-                    <span style={{
-                      width: 8, height: 8, borderRadius: '50%',
-                      background: col.color, display: 'inline-block',
-                    }} />
-                    {col.label}
-                  </button>
-                ))}
+                {COLUMNS.filter((c) => c.key !== interview.status).map(
+                  (col) => (
+                    <button
+                      key={col.key}
+                      onClick={() => {
+                        onStatusChange(interview.id, col.key);
+                        setShowDropdown(false);
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          background: col.color,
+                          display: "inline-block",
+                        }}
+                      />
+                      {col.label}
+                    </button>
+                  ),
+                )}
               </div>
             )}
           </div>
@@ -120,11 +133,13 @@ function CardContent({ interview, onEdit, onDelete, onStatusChange, dragHandlePr
       <div className="kanban-meta">
         {interview.hr_name && (
           <div className="kanban-meta-row">
-            <span>👤</span><span>{interview.hr_name}</span>
+            <span>👤</span>
+            <span>{interview.hr_name}</span>
           </div>
         )}
         <div className="kanban-meta-row">
-          <span>📍</span><span>{interview.location}</span>
+          <span>📍</span>
+          <span>{interview.location}</span>
         </div>
         <div className="kanban-meta-row">
           <span>💼</span>
@@ -134,18 +149,19 @@ function CardContent({ interview, onEdit, onDelete, onStatusChange, dragHandlePr
         </div>
         {interview.expected_ctc && (
           <div className="kanban-meta-row">
-            <span>💰</span><span>{interview.expected_ctc}</span>
+            <span>💰</span>
+            <span>{interview.expected_ctc}</span>
           </div>
         )}
         <div className="kanban-meta-row">
           <span>📅</span>
-          <span>{new Date(interview.applied_date).toLocaleDateString('en-IN')}</span>
+          <span>
+            {new Date(interview.applied_date).toLocaleDateString("en-IN")}
+          </span>
         </div>
       </div>
 
-      {interview.notes && (
-        <div className="kanban-notes">{interview.notes}</div>
-      )}
+      {interview.notes && <div className="kanban-notes">{interview.notes}</div>}
     </div>
   );
 }
@@ -156,7 +172,7 @@ function DroppableColumn({ col, cards, onEdit, onDelete, onStatusChange }) {
 
   return (
     <div
-      className={`kanban-col ${isOver ? 'kanban-col-over' : ''}`}
+      className={`kanban-col ${isOver ? "kanban-col-over" : ""}`}
       key={col.key}
     >
       <div className="kanban-col-header">
@@ -171,7 +187,7 @@ function DroppableColumn({ col, cards, onEdit, onDelete, onStatusChange }) {
         {cards.length === 0 ? (
           <div className="kanban-empty">Drop here</div>
         ) : (
-          cards.map(interview => (
+          cards.map((interview) => (
             <DraggableCard
               key={interview.id}
               interview={interview}
@@ -188,12 +204,12 @@ function DroppableColumn({ col, cards, onEdit, onDelete, onStatusChange }) {
 
 // ── Main Page ──
 function KanbanPage() {
-  const [interviews, setInterviews]       = useState([]);
-  const [loading, setLoading]             = useState(true);
-  const [activeCard, setActiveCard]       = useState(null);
-  const [showForm, setShowForm]           = useState(false);
+  const [interviews, setInterviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeCard, setActiveCard] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   const [editInterview, setEditInterview] = useState(null);
-  const [deleteTarget, setDeleteTarget]   = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   // Sensors — supports both mouse and touch
   const sensors = useSensors(
@@ -205,7 +221,9 @@ function KanbanPage() {
     }),
   );
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => {
+    fetchAll();
+  }, []);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -218,7 +236,7 @@ function KanbanPage() {
   };
 
   const handleDragStart = (event) => {
-    const card = interviews.find(i => i.id === event.active.id);
+    const card = interviews.find((i) => i.id === event.active.id);
     setActiveCard(card);
   };
 
@@ -229,56 +247,57 @@ function KanbanPage() {
     // over is the column key
     if (!over) return;
     const newStatus = over.id;
-    const card = interviews.find(i => i.id === active.id);
+    const card = interviews.find((i) => i.id === active.id);
 
     // No change if dropped in same column
     if (!card || card.status === newStatus) return;
 
     // Optimistic update — update UI instantly
-    setInterviews(prev =>
-      prev.map(i => i.id === card.id ? { ...i, status: newStatus } : i)
+    setInterviews((prev) =>
+      prev.map((i) => (i.id === card.id ? { ...i, status: newStatus } : i)),
     );
 
     // Then persist to backend
     try {
       await interviewService.update(card.id, { status: newStatus });
     } catch (err) {
+      console.error(err);
       // Rollback on failure
-      setInterviews(prev =>
-        prev.map(i => i.id === card.id ? { ...i, status: card.status } : i)
+      setInterviews((prev) =>
+        prev.map((i) => (i.id === card.id ? { ...i, status: card.status } : i)),
       );
     }
   };
 
   const handleStatusChange = async (id, newStatus) => {
-    const card = interviews.find(i => i.id === id);
-    setInterviews(prev =>
-      prev.map(i => i.id === id ? { ...i, status: newStatus } : i)
+    const card = interviews.find((i) => i.id === id);
+    setInterviews((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, status: newStatus } : i)),
     );
     try {
       await interviewService.update(id, { status: newStatus });
     } catch {
-      setInterviews(prev =>
-        prev.map(i => i.id === id ? { ...i, status: card.status } : i)
+      setInterviews((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, status: card.status } : i)),
       );
     }
   };
 
   const handleSaved = (saved, isEdit) => {
     if (isEdit) {
-      setInterviews(prev => prev.map(i => i.id === saved.id ? saved : i));
+      setInterviews((prev) => prev.map((i) => (i.id === saved.id ? saved : i)));
     } else {
-      setInterviews(prev => [saved, ...prev]);
+      setInterviews((prev) => [saved, ...prev]);
     }
   };
 
   const handleDelete = async () => {
     await interviewService.remove(deleteTarget.id);
-    setInterviews(prev => prev.filter(i => i.id !== deleteTarget.id));
+    setInterviews((prev) => prev.filter((i) => i.id !== deleteTarget.id));
     setDeleteTarget(null);
   };
 
-  const getByStatus = (status) => interviews.filter(i => i.status === status);
+  const getByStatus = (status) => interviews.filter((i) => i.status === status);
 
   return (
     <Layout
@@ -286,15 +305,24 @@ function KanbanPage() {
       actions={
         <button
           className="btn btn-primary"
-          style={{ fontSize: 12, padding: '6px 14px', borderRadius: '6px' }}
-          onClick={() => { setEditInterview(null); setShowForm(true); }}
+          style={{ fontSize: 12, padding: "6px 14px", borderRadius: "6px" }}
+          onClick={() => {
+            setEditInterview(null);
+            setShowForm(true);
+          }}
         >
           + Add Interview
         </button>
       }
     >
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 60, color: 'var(--text-secondary)' }}>
+        <div
+          style={{
+            textAlign: "center",
+            padding: 60,
+            color: "var(--text-secondary)",
+          }}
+        >
           Loading board...
         </div>
       ) : (
@@ -304,12 +332,15 @@ function KanbanPage() {
           onDragEnd={handleDragEnd}
         >
           <div className="kanban-board">
-            {COLUMNS.map(col => (
+            {COLUMNS.map((col) => (
               <DroppableColumn
                 key={col.key}
                 col={col}
                 cards={getByStatus(col.key)}
-                onEdit={(i) => { setEditInterview(i); setShowForm(true); }}
+                onEdit={(i) => {
+                  setEditInterview(i);
+                  setShowForm(true);
+                }}
                 onDelete={setDeleteTarget}
                 onStatusChange={handleStatusChange}
               />
@@ -319,7 +350,7 @@ function KanbanPage() {
           {/* Drag overlay — card that follows cursor */}
           <DragOverlay>
             {activeCard && (
-              <div style={{ transform: 'rotate(2deg)', opacity: 0.95 }}>
+              <div style={{ transform: "rotate(2deg)", opacity: 0.95 }}>
                 <CardContent interview={activeCard} />
               </div>
             )}
@@ -330,7 +361,10 @@ function KanbanPage() {
       {showForm && (
         <InterviewForm
           interview={editInterview}
-          onClose={() => { setShowForm(false); setEditInterview(null); }}
+          onClose={() => {
+            setShowForm(false);
+            setEditInterview(null);
+          }}
           onSaved={handleSaved}
         />
       )}
@@ -340,11 +374,14 @@ function KanbanPage() {
           <div className="modal-card">
             <h3>Delete Interview?</h3>
             <p>
-              Are you sure you want to delete{' '}
+              Are you sure you want to delete{" "}
               <strong>{deleteTarget.company}</strong>?
             </p>
             <div className="modal-actions">
-              <button className="btn btn-ghost" onClick={() => setDeleteTarget(null)}>
+              <button
+                className="btn btn-ghost"
+                onClick={() => setDeleteTarget(null)}
+              >
                 Cancel
               </button>
               <button className="btn btn-danger" onClick={handleDelete}>

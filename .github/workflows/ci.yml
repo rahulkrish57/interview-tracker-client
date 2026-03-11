@@ -25,5 +25,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Lint check          # ← add this step
+        run: npm run lint
+        
       - name: Build project
         run: npm run build
