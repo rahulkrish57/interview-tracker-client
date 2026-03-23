@@ -34,8 +34,11 @@ export const interviewService = {
     return res.data;
   },
 
-  addComment: async (interviewId, content) => {
-    const res = await api.post(`${BASE}/${interviewId}/comments`, { content });
+  addComment: async (interviewId, content, contentHtml) => {
+    const res = await api.post(`${BASE}/${interviewId}/comments`, {
+      content,
+      content_html: contentHtml,
+    });
     return res.data;
   },
 

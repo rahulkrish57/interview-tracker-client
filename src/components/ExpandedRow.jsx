@@ -1,7 +1,8 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { interviewService } from "../services/interviewService";
 import "../styles/expandedrow.css";
+import RichTextEditor from "./RichTextEditor";
 
 const HISTORY_CONFIG = {
   created: { icon: "✨", bg: "#d1fae5", color: "#059669" },
@@ -26,15 +27,9 @@ function ExpandedRow({ interview, colSpan }) {
   const [comments, setComments] = useState([]);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newComment, setNewComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const inputRef = useRef(null);
 
-  useEffect(() => {
-    fetchData();
-  }, [interview.id]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [c, h] = await Promise.all([
@@ -46,33 +41,30 @@ function ExpandedRow({ interview, colSpan }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [interview.id]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  const handleAddComment = async (e) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
-
+  const handleAddComment = async ({ html, text }) => {
+    if (!text.trim()) return;
     setSubmitting(true);
     try {
       const comment = await interviewService.addComment(
         interview.id,
-        newComment.trim(),
+        text.trim(),
+        html,
       );
       setComments((prev) => [...prev, comment]);
-      setNewComment("");
-
-      // Add to history locally
       setHistory((prev) => [
         {
           id: Date.now(),
           type: "comment_added",
-          to_value: newComment.trim().substring(0, 80),
+          to_value: text.trim().substring(0, 80),
           created_at: new Date().toISOString(),
         },
         ...prev,
       ]);
-
-      inputRef.current?.focus();
     } finally {
       setSubmitting(false);
     }
@@ -162,29 +154,21 @@ function ExpandedRow({ interview, colSpan }) {
                         🗑️
                       </button>
                     </div>
-                    <p className="comment-text">{c.content}</p>
+                    <p
+                      className="comment-text comment-html"
+                      dangerouslySetInnerHTML={{
+                        __html: c.content_html || c.content,
+                      }}
+                    />
                   </div>
                 ))
               )}
 
               {/* Add comment */}
-              <form className="comment-input-row" onSubmit={handleAddComment}>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  placeholder="Add a comment..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  disabled={submitting}
-                />
-                <button
-                  type="submit"
-                  className="comment-submit"
-                  disabled={submitting || !newComment.trim()}
-                >
-                  {submitting ? "..." : "Post"}
-                </button>
-              </form>
+              <RichTextEditor
+                onSubmit={handleAddComment}
+                disabled={submitting}
+              />
             </div>
           </div>
 
