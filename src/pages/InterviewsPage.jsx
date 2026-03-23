@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import { interviewService } from "../services/interviewService";
 import "../styles/interviews.css";
 import InterviewForm from "../components/InterviewForm";
+import ExpandedRow from "../components/ExpandedRow";
 const STATUS_OPTIONS = [
   "all",
   "phone",
@@ -48,7 +49,7 @@ function InterviewsPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editInterview, setEditInterview] = useState(null);
-
+  const [expandedId, setExpandedId] = useState(null);
   useEffect(() => {
     fetchInterviews();
   }, []);
@@ -62,7 +63,10 @@ function InterviewsPage() {
       setLoading(false);
     }
   };
-
+  // ── Toggle expand ──
+  const toggleExpand = (id) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
   // ── Sort handler ──
   const handleSort = (field) => {
     if (sortField === field) {
@@ -226,54 +230,72 @@ function InterviewsPage() {
                 </tr>
               ) : (
                 filtered.map((i) => (
-                  <tr key={i.id}>
-                    <td>
-                      <div className="company-cell">
-                        <span className="company-name">{i.company}</span>
-                        {i.hr_name && (
-                          <span className="hr-name">👤 {i.hr_name}</span>
-                        )}
-                      </div>
-                    </td>
-                    <td>{i.location}</td>
-                    <td>
-                      <span className={`mode-badge mode-${i.mode_of_work}`}>
-                        {i.mode_of_work}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`status-pill status-${i.status}`}>
-                        {i.status}
-                      </span>
-                    </td>
-                    <td style={{ color: "var(--text-secondary)" }}>
-                      {i.expected_ctc || "—"}
-                    </td>
-                    <td style={{ color: "var(--text-secondary)" }}>
-                      {new Date(i.applied_date).toLocaleDateString("en-IN")}
-                    </td>
-                    <td>
-                      <div className="action-btns">
-                        <button
-                          className="btn-icon"
-                          title="Edit"
-                          onClick={() => {
-                            setEditInterview(i);
-                            setShowForm(true);
-                          }}
+                  <>
+                    <tr key={i.id}>
+                      <td>
+                        <div
+                          className="company-cell"
+                          onClick={() => toggleExpand(i.id)}
+                          style={{ cursor: "pointer" }}
                         >
-                          ✏️
-                        </button>
-                        <button
-                          className="btn-icon danger"
-                          title="Delete"
-                          onClick={() => setDeleteTarget(i)}
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                          <span
+                            className="company-name"
+                            style={{ color: "var(--accent)" }}
+                          >
+                            {expandedId === i.id ? "▼" : "▶"} {i.company}
+                          </span>
+                          {i.hr_name && (
+                            <span className="hr-name">👤 {i.hr_name}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td>{i.location}</td>
+                      <td>
+                        <span className={`mode-badge mode-${i.mode_of_work}`}>
+                          {i.mode_of_work}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`status-pill status-${i.status}`}>
+                          {i.status}
+                        </span>
+                      </td>
+                      <td style={{ color: "var(--text-secondary)" }}>
+                        {i.expected_ctc || "—"}
+                      </td>
+                      <td style={{ color: "var(--text-secondary)" }}>
+                        {new Date(i.applied_date).toLocaleDateString("en-IN")}
+                      </td>
+                      <td>
+                        <div className="action-btns">
+                          <button
+                            className="btn-icon"
+                            title="Edit"
+                            onClick={() => {
+                              setEditInterview(i);
+                              setShowForm(true);
+                            }}
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            className="btn-icon danger"
+                            title="Delete"
+                            onClick={() => setDeleteTarget(i)}
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    {expandedId === i.id && (
+                      <ExpandedRow
+                        key={`expanded-${i.id}`}
+                        interview={i}
+                        colSpan={7}
+                      />
+                    )}
+                  </>
                 ))
               )}
             </tbody>

@@ -1,6 +1,6 @@
-import api from './api';
+import api from "./api";
 
-const BASE = '/api/interviews';
+const BASE = "/api/interviews";
 
 export const interviewService = {
   getAll: async (params = {}) => {
@@ -25,6 +25,30 @@ export const interviewService = {
 
   remove: async (id) => {
     const res = await api.delete(`${BASE}/${id}`);
+    return res.data;
+  },
+
+  // ── Comments ──
+  getComments: async (interviewId) => {
+    const res = await api.get(`${BASE}/${interviewId}/comments`);
+    return res.data;
+  },
+
+  addComment: async (interviewId, content) => {
+    const res = await api.post(`${BASE}/${interviewId}/comments`, { content });
+    return res.data;
+  },
+
+  deleteComment: async (interviewId, commentId) => {
+    const res = await api.delete(
+      `${BASE}/${interviewId}/comments/${commentId}`,
+    );
+    return res.data;
+  },
+
+  // ── History ──
+  getHistory: async (interviewId) => {
+    const res = await api.get(`${BASE}/${interviewId}/history`);
     return res.data;
   },
 };
